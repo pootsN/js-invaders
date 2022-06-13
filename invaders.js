@@ -1,9 +1,72 @@
+class Enemy {
+    x;
+    y;
+    health;
+
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.health = 3;
+
+    }
+
+    draw(context) {
+        const image = new Image();
+        image.src = 'poes.jpg';
+        context.drawImage(image, this.x, this.y, 50, 50);
+    }
+}
+
+class Bullet {
+    color = 'red';
+    x;
+    y;
+    
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    } 
+
+    move() {
+        this.y -= 20;
+    }
+
+    draw(context) {
+            context.fillStyle = this.color;
+            context.beginPath();
+            context.arc(this.x, this.y, 5, 0, 2 * Math.PI);
+            context.fill(); 
+    }
+}
+
 const player = {
     x: 390,
-    y: 580
+    y: 580,
+
+    move: function() {
+        if(direction.up) {
+            this.y -= 10;
+        }
+        if(direction.left) {
+            this.x -= 10;
+        }
+        if(direction.down) {
+            this.y += 10;
+        }
+        if(direction.right) {
+            this.x += 10;
+        }
+    },
+
+    draw: function(context) {
+        context.fillStyle = 'aqua';
+        context.fillRect(this.x, this.y, 20, 20);
+    }
 };
 
 let bullets = [];
+
+let enemies = [];
 
 let direction = {
     up: false,
@@ -13,25 +76,15 @@ let direction = {
 };
 
 function setup() {
-
+    let enemy = new Enemy(30, 30);
+    enemies.push(enemy);
 }
 
 function update() {
-    if(direction.up) {
-        player.y -= 10;
-    }
-    if(direction.left) {
-        player.x -= 10;
-    }
-    if(direction.down) {
-        player.y += 10;
-    }
-    if(direction.right) {
-        player.x += 10;
-    }
+    player.move();
 
     for (let index = 0; index < bullets.length; index++) {
-        bullets[index].y -=5;  
+        bullets[index].move();  
     }
     
     draw();
@@ -50,16 +103,15 @@ function draw() {
     context.fillStyle = 'white';
     context.fillText("Space Invaders", 10, 50);
 
-    context.fillStyle = 'aqua';
-    context.fillRect(player.x, player.y, 20, 20);
+    player.draw(context);
 
     for (let index = 0; index < bullets.length; index++) {
-        context.fillStyle = 'yellow';
-        context.beginPath();
-        context.arc(bullets[index].x, bullets[index].y, 5, 0, 2 * Math.PI);
-        context.fill();
+        bullets[index].draw(context); 
     }
 
+    for (let index = 0; index < enemies.length; index++) {
+        enemies[index].draw(context); 
+    }
 }
 
 function movePlayer(event) {
@@ -77,10 +129,8 @@ function movePlayer(event) {
             direction.down = true;
             break;
         case " ":
-            bullets.push(  {
-                x: player.x + 10,
-                y: player.y
-            } );
+            let bullet = new Bullet(player.x + 10, player.y);
+            bullets.push(bullet);
             break;
     }
 
